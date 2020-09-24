@@ -22,9 +22,17 @@ namespace BoxField
         //list to hold a column of boxes    
         List<Box> left = new List<Box>();
         List<Box> right = new List<Box>();
+        int leftX = 200;
+        int gap = 300;
+        Boolean moveRight = true;
+        int patternLength = 10;
+
 
         //create the hero
         Hero hero1 = new Hero(150, 475, 25);
+
+        //random num gen
+        Random randNum = new Random();
 
         public GameScreen()
         {
@@ -37,10 +45,14 @@ namespace BoxField
         /// </summary>
         public void OnStart()
         {
+            //color for boxes and pattern
+            Color c = RandomColor();
+            leftX = pattern();
+
             //set game start values
-            Box newBoxL = new Box(50, 0, 20);
+            Box newBoxL = new Box(leftX, 0, 20, c);
             left.Add(newBoxL);
-            Box newBoxR = new Box(250, 0, 20);
+            Box newBoxR = new Box(leftX + gap, 0, 20, c);
             right.Add(newBoxR);
         }
 
@@ -96,16 +108,20 @@ namespace BoxField
                 right.RemoveAt(0);
             }
 
-
             //add new box if it is time
             if (left[left.Count - 1].y > 20)
             {
-                Box newBoxL = new Box(50, 0, 20);
+                Color c = RandomColor(); //color for boxes
+                leftX = pattern(); //pattern maker
+
+                Box newBoxL = new Box(leftX, 0, 20, c);
                 left.Add(newBoxL);
-                Box newBoxR = new Box(250, 0, 20);
+                Box newBoxR = new Box(leftX + gap, 0, 20, c);
                 right.Add(newBoxR);
             }
 
+            //hero movement (MAKE SURE YOU CAN"T GO OFFSCREEN)
+            //COLLISION NEEDS TO BE DONE
             if(rightArrowDown == true)
             {
                 hero1.Move(5);
@@ -123,15 +139,68 @@ namespace BoxField
             //draw boxes to screen
             foreach(Box b in left)
             {
+                boxBrush.Color = b.color;
                 e.Graphics.FillRectangle(boxBrush, b.x, b.y, b.size, b.size);
             }
 
             foreach (Box b in right)
             {
+                boxBrush.Color = b.color;
                 e.Graphics.FillRectangle(boxBrush, b.x, b.y, b.size, b.size);
             }
 
             e.Graphics.FillRectangle(heroBrush, hero1.x, hero1.y, hero1.size, hero1.size);
+        }
+
+        private Color RandomColor()
+        {
+            int randColor = randNum.Next(1, 5); //random number for color choice
+            Color c = Color.White; //initialize color
+
+            //switch for color picking
+            switch (randColor)
+            {
+                case (1):
+                    c = Color.Red;
+                    break;
+
+                case (2):
+                    c = Color.OrangeRed;
+                    break;
+
+                case (3):
+                    c = Color.Orange;
+                    break;
+
+                case (4):
+                    c = Color.Yellow;
+                    break;
+            }
+
+            return (c);
+        }
+
+        private int pattern()
+        {
+            //pattern maker (NEED TO ADD RANDOMIZER)
+            patternLength--;
+            if (patternLength == 0)
+            {
+                moveRight = !moveRight;
+                patternLength = 10;
+            }
+
+
+            if (moveRight)
+            {
+                leftX += 10;
+            }
+            else
+            {
+                leftX -= 10;
+            }
+
+            return (leftX);
         }
     }
 }

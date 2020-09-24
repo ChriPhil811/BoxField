@@ -12,11 +12,19 @@ namespace BoxField
         public Color color;
         public int size, x, y;
 
-        public Box (int _x, int _y, int _size)
+        public Box(int _x, int _y, int _size)
         {
             x = _x;
             y = _y;
             size = _size;
+        }
+
+        public Box (int _x, int _y, int _size, Color _color)
+        {
+            x = _x;
+            y = _y;
+            size = _size;
+            color = _color;
         }
 
         public void Move(int speed)
