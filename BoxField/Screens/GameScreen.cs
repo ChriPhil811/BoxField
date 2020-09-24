@@ -17,13 +17,19 @@ namespace BoxField
 
         //used to draw boxes on screen
         SolidBrush boxBrush = new SolidBrush(Color.White);
-        
-        //TODO - create a list to hold a column of boxes        
+        SolidBrush heroBrush = new SolidBrush(Color.Red);
 
+        //list to hold a column of boxes    
+        List<Box> left = new List<Box>();
+        List<Box> right = new List<Box>();
+
+        //create the hero
+        Hero hero1 = new Hero(150, 475, 25);
 
         public GameScreen()
         {
             InitializeComponent();
+            OnStart();
         }
 
         /// <summary>
@@ -31,7 +37,11 @@ namespace BoxField
         /// </summary>
         public void OnStart()
         {
-            //TODO - set game start values
+            //set game start values
+            Box newBoxL = new Box(50, 0, 20);
+            left.Add(newBoxL);
+            Box newBoxR = new Box(250, 0, 20);
+            right.Add(newBoxR);
         }
 
         private void GameScreen_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
@@ -64,18 +74,64 @@ namespace BoxField
 
         private void gameLoop_Tick(object sender, EventArgs e)
         {
-            //TODO - update location of all boxes (drop down screen)
+            //update location of all boxes (drop down screen)
+            foreach(Box b in left)
+            {
+                b.Move(10);
+            }
 
-            //TODO - remove box if it has gone of screen
+            foreach (Box b in right)
+            {
+                b.Move(10);
+            }
 
-            //TODO - add new box if it is time
+            //remove box if it has gone of screen
+            if (left[0].y > 500)
+            {
+                left.RemoveAt(0);
+            }
+
+            if (right[0].y > 500)
+            {
+                right.RemoveAt(0);
+            }
+
+
+            //add new box if it is time
+            if (left[left.Count - 1].y > 20)
+            {
+                Box newBoxL = new Box(50, 0, 20);
+                left.Add(newBoxL);
+                Box newBoxR = new Box(250, 0, 20);
+                right.Add(newBoxR);
+            }
+
+            if(rightArrowDown == true)
+            {
+                hero1.Move(5);
+            }
+            else if(leftArrowDown == true)
+            {
+                hero1.Move(-5);
+            }
 
             Refresh();
         }
 
         private void GameScreen_Paint(object sender, PaintEventArgs e)
         {
-            //TODO - draw boxes to screen
+            //draw boxes to screen
+            foreach(Box b in left)
+            {
+                e.Graphics.FillRectangle(boxBrush, b.x, b.y, b.size, b.size);
+            }
+
+            foreach (Box b in right)
+            {
+                e.Graphics.FillRectangle(boxBrush, b.x, b.y, b.size, b.size);
+            }
+
+            e.Graphics.FillRectangle(heroBrush, hero1.x, hero1.y, hero1.size, hero1.size);
         }
     }
 }
