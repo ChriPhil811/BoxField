@@ -51,6 +51,12 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Screens\GameOverScreen.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Screens\GameOverScreen.Designer.cs">
+      <DependentUpon>GameOverScreen.cs</DependentUpon>
+    </Compile>
     <Compile Include="Hero.cs" />
     <Compile Include="Screens\GameScreen.cs">
       <SubType>UserControl</SubType>
@@ -72,6 +78,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Screens\GameOverScreen.resx">
+      <DependentUpon>GameOverScreen.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Screens\GameScreen.resx">
       <DependentUpon>GameScreen.cs</DependentUpon>
     </EmbeddedResource>

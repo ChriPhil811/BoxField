@@ -12,8 +12,11 @@ namespace BoxField
 {
     public partial class GameScreen : UserControl
     {
+
+        #region variables
+
         //player1 button control keys
-        Boolean leftArrowDown, rightArrowDown;
+        Boolean aDown, dDown;
 
         //random num gen
         Random randNum = new Random();
@@ -30,6 +33,11 @@ namespace BoxField
         int leftX = 200;
         int gap = 200;
 
+        public static int score = 0; //variable for tracking player score
+        int timer = 0; //timer int
+        int fallSpeed = 4; //box fall speed
+        int heroMoveSpeed = 4; //hero move speed
+
         Boolean moveRight = true; //boolean for hero movement
 
         //variables for pattern
@@ -39,15 +47,16 @@ namespace BoxField
         //create the hero
         Hero hero1 = new Hero(150, 475, 25);
 
+        #endregion variables
+
         public GameScreen()
         {
             InitializeComponent();
             OnStart();
         }
 
-        /// <summary>
-        /// Set initial game values here
-        /// </summary>
+        #region game setup
+
         public void OnStart()
         {
             //color for boxes and pattern
@@ -59,19 +68,25 @@ namespace BoxField
             left.Add(newBoxL);
             Box newBoxR = new Box(leftX + gap, 0, 20, c);
             right.Add(newBoxR);
+
+            score = 0;
         }
+
+        #endregion game setup
+
+        #region key down and up
 
         private void GameScreen_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
             //player 1 button presses
             switch (e.KeyCode)
             {
-                case Keys.Left:
-                    leftArrowDown = true;
+                case Keys.A:
+                    aDown = true;
                     break;
-                case Keys.Right:
-                    rightArrowDown = true;
-                    break;           
+                case Keys.D:
+                    dDown = true;
+                    break;
             }
         }
 
@@ -80,26 +95,33 @@ namespace BoxField
             //player 1 button releases
             switch (e.KeyCode)
             {
-                case Keys.Left:
-                    leftArrowDown = false;
+                case Keys.A:
+                    aDown = false;
                     break;
-                case Keys.Right:
-                    rightArrowDown = false;
+                case Keys.D:
+                    dDown = false;
                     break;
             }
         }
 
+        #endregion key down and up
+
+        #region game loop
+
         private void gameLoop_Tick(object sender, EventArgs e)
         {
+
+            #region falling box creation and removal
+
             //update location of all boxes (drop down screen)
-            foreach(Box b in left)
+            foreach (Box b in left)
             {
-                b.Move(10);
+                b.Move(fallSpeed);
             }
 
             foreach (Box b in right)
             {
-                b.Move(10);
+                b.Move(fallSpeed);
             }
 
             //remove box if it has gone of screen
@@ -125,14 +147,18 @@ namespace BoxField
                 right.Add(newBoxR);
             }
 
+            #endregion falling box creation and removal
+
+            #region hero movement and collision
+
             //hero movement
-            if(rightArrowDown == true && hero1.x < this.Width - hero1.size)
+            if (aDown == true && hero1.x > 0)
             {
-                hero1.Move(10);
+                hero1.Move(-heroMoveSpeed);
             }
-            else if(leftArrowDown == true && hero1.x > 0)
+            if (dDown == true && hero1.x < this.Width - hero1.size)
             {
-                hero1.Move(-10);
+                hero1.Move(heroMoveSpeed);
             }
 
             //hero collision
@@ -148,13 +174,46 @@ namespace BoxField
 
                     if (heroRec.IntersectsWith(boxRecL) || heroRec.IntersectsWith(boxRecR))
                     {
-                        gameLoop.Enabled = false;
+                        gameLoop.Enabled = false; //stop the game loop
+
+                        //switch to the game over screen
+                        Form f = this.FindForm();
+                        f.Controls.Remove(this);
+                        GameOverScreen gos = new GameOverScreen();
+                        f.Controls.Add(gos);
+
+                        gos.Focus();
                     }
                 }
             }
 
+            #endregion hero movement and collision
+
+            #region score tracking
+
+            timer++;
+
+            if(timer == 20)
+            {
+                score++; //increase score by 1
+                scoreLabel.Text = "Score: " + score; //display the score
+                timer = 0; //set timer back to zero
+            }
+
+            if(score % 25 == 0 && timer == 0)
+            {
+                fallSpeed += 2;
+                heroMoveSpeed += 2;
+            }
+            
+            #endregion score tracking
+
             Refresh();
         }
+
+        #endregion game loop
+
+        #region paint graphics
 
         private void GameScreen_Paint(object sender, PaintEventArgs e)
         {
@@ -173,6 +232,10 @@ namespace BoxField
 
             e.Graphics.FillRectangle(heroBrush, hero1.x, hero1.y, hero1.size, hero1.size);
         }
+
+        #endregion paint graphics
+
+        #region random color gen
 
         private Color RandomColor()
         {
@@ -202,6 +265,10 @@ namespace BoxField
             return (c);
         }
 
+        #endregion random color gen
+
+        #region pattern stuff
+
         private int pattern()
         {
             //pattern maker
@@ -210,14 +277,22 @@ namespace BoxField
             {
                 moveRight = !moveRight;
                 patternLength = randNum.Next(2, 10);
-                patternSpeed = randNum.Next(10, 30);
+                patternSpeed = randNum.Next(10, 25);
             }
 
             //if pattern reaches a wall, switch direction 
             //(this should prevent the pattern from going out of the screen)
-            if(leftX < 0 || leftX + gap > this.Width - 20)
+            if(leftX < 0)
             {
-                moveRight = !moveRight;
+                moveRight = true;
+                patternLength = 10;
+                patternSpeed = 30;
+            }
+            if(leftX + gap > this.Width - 20)
+            {
+                moveRight = false;
+                patternLength = 10;
+                patternSpeed = 30;
             }
 
             //pattern speed adjustment
@@ -232,5 +307,8 @@ namespace BoxField
 
             return (leftX);
         }
+
+        #endregion pattern stuff
+
     }
 }
